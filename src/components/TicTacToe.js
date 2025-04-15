@@ -14,11 +14,15 @@ const TicTacToe = () => {
       return 0;
     }
     if (count % 2 === 0) {
-      e.target.innerHTML = `<img src=${crossIcon} height="70px" width="70px" style={{alignItems:"center"}} >`;
+      e.target.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;">
+                               <img src="${crossIcon}" height="70px" width="70px">
+                            </div>`;
       data[num] = "x";
       setCount(++count);
     } else {
-      e.target.innerHTML = `<img src=${circleIcon} height="70px" width="70px"  style={{alignItems:"center"}}>`;
+      e.target.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;">
+                               <img src="${circleIcon}" height="70px" width="70px">
+                            </div>`;
       data[num] = "o";
       setCount(++count);
     }
