@@ -2,12 +2,16 @@ import React, { useRef, useState } from "react";
 import "./styles/TicTacToe.css";
 import circleIcon from "../assets/circle.png";
 import crossIcon from "../assets/cross.png";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
 
 const TicTacToe = () => {
   const [data, setData] = useState(["", "", "", "", "", "", "", "", ""]);
   const [count, setCount] = useState(0);
   const [lock, setLock] = useState(false);
+  const [winner, setWinner] = useState(null);
   const titleRef = useRef(null);
+  const { width, height } = useWindowSize();
 
   const toggle = (index) => {
     if (lock || data[index] !== "") return;
@@ -44,9 +48,10 @@ const TicTacToe = () => {
     }
   };
 
-  const won = (winner) => {
+  const won = (player) => {
     setLock(true);
-    const icon = winner === "x" ? crossIcon : circleIcon;
+    setWinner(player); // for confetti
+    const icon = player === "x" ? crossIcon : circleIcon;
     titleRef.current.innerHTML = `Congratulations: <img src="${icon}" height="30" width="30" /> wins`;
   };
 
@@ -54,6 +59,7 @@ const TicTacToe = () => {
     setData(["", "", "", "", "", "", "", "", ""]);
     setCount(0);
     setLock(false);
+    setWinner(null);
     titleRef.current.innerHTML = "Tic Tac Toe";
   };
 
@@ -83,7 +89,7 @@ const TicTacToe = () => {
             width: "100%",
           }}
         >
-          <img src={circleIcon} alt="X" height="70px" width="70px" />
+          <img src={circleIcon} alt="O" height="70px" width="70px" />
         </div>
       );
     }
@@ -92,6 +98,7 @@ const TicTacToe = () => {
 
   return (
     <div className="container">
+      {winner && <Confetti width={width} height={height} />}
       <h1 className="title" ref={titleRef}>
         Tic Tac Toe
       </h1>
@@ -113,9 +120,11 @@ const TicTacToe = () => {
           </div>
         ))}
       </div>
-      <button className="reset" onClick={resetBoard}>
-        Reset
-      </button>
+      <div className="resetDiv">
+        <button className="reset" onClick={resetBoard}>
+          Reset
+        </button>
+      </div>
     </div>
   );
 };
