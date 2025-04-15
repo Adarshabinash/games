@@ -3,65 +3,92 @@ import "./styles/TicTacToe.css";
 import circleIcon from "../assets/circle.png";
 import crossIcon from "../assets/cross.png";
 
-let data = ["", "", "", "", "", "", "", "", ""];
-
 const TicTacToe = () => {
-  let [count, setCount] = useState(0);
+  const [data, setData] = useState(["", "", "", "", "", "", "", "", ""]);
+  const [count, setCount] = useState(0);
   const [lock, setLock] = useState(false);
-  let titleRef = useRef(null);
+  const titleRef = useRef(null);
 
-  const toggle = (e, num) => {
-    if (lock) {
-      return 0;
-    }
-    if (count % 2 === 0) {
-      e.target.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;">
-                               <img src="${crossIcon}" height="70px" width="70px">
-                            </div>`;
-      data[num] = "x";
-      setCount(++count);
-    } else {
-      e.target.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;">
-                               <img src="${circleIcon}" height="70px" width="70px">
-                            </div>`;
-      data[num] = "o";
-      setCount(++count);
-    }
-    checkWin();
+  const toggle = (index) => {
+    if (lock || data[index] !== "") return;
+
+    const newData = [...data];
+    newData[index] = count % 2 === 0 ? "x" : "o";
+    setData(newData);
+    setCount(count + 1);
+    checkWin(newData);
   };
 
-  const checkWin = () => {
-    if (data[0] === data[1] && data[1] === data[2] && data[2] !== "") {
-      won(data[2]);
-    } else if (data[3] === data[4] && data[4] === data[5] && data[5] !== "") {
-      won(data[5]);
-    } else if (data[6] === data[7] && data[7] === data[8] && data[8] !== "") {
-      won(data[8]);
-    } else if (data[0] === data[4] && data[4] === data[8] && data[8] !== "") {
-      won(data[8]);
-    } else if (data[2] === data[4] && data[4] === data[6] && data[6] !== "") {
-      won(data[6]);
-    } else if (data[0] === data[3] && data[3] === data[6] && data[6] !== "") {
-      won(data[6]);
-    } else if (data[1] === data[4] && data[4] === data[7] && data[7] !== "") {
-      won(data[7]);
-    } else if (data[2] === data[5] && data[5] === data[8] && data[8] !== "") {
-      won(data[8]);
+  const checkWin = (newData) => {
+    const winConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let condition of winConditions) {
+      const [a, b, c] = condition;
+      if (
+        newData[a] &&
+        newData[a] === newData[b] &&
+        newData[b] === newData[c]
+      ) {
+        won(newData[a]);
+        break;
+      }
     }
   };
 
   const won = (winner) => {
     setLock(true);
-    if (winner === "x") {
-      titleRef.current.innerHTML = `Congratulations:  <img src=${crossIcon} style="height: 30px; width: 30px;" />            wins`;
-    } else {
-      titleRef.current.innerHTML = `Congratulations:  <img src=${circleIcon} style="height: 30px; width: 30px;" />            wins`;
-    }
+    const icon = winner === "x" ? crossIcon : circleIcon;
+    titleRef.current.innerHTML = `Congratulations: <img src="${icon}" height="30" width="30" /> wins`;
   };
 
-  const resetBoard = () => {};
+  const resetBoard = () => {
+    setData(["", "", "", "", "", "", "", "", ""]);
+    setCount(0);
+    setLock(false);
+    titleRef.current.innerHTML = "Tic Tac Toe";
+  };
 
-  console.log("data------------->", data);
+  const renderIcon = (value) => {
+    if (value === "x") {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <img src={crossIcon} alt="X" height="70px" width="70px" />
+        </div>
+      );
+    } else if (value === "o") {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <img src={circleIcon} alt="X" height="70px" width="70px" />
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="container">
@@ -69,21 +96,22 @@ const TicTacToe = () => {
         Tic Tac Toe
       </h1>
       <div className="board">
-        <div className="row1">
-          <div className="boxes" onClick={(e) => toggle(e, 0)}></div>
-          <div className="boxes" onClick={(e) => toggle(e, 1)}></div>
-          <div className="boxes" onClick={(e) => toggle(e, 2)}></div>
-        </div>
-        <div className="row2">
-          <div className="boxes" onClick={(e) => toggle(e, 3)}></div>
-          <div className="boxes" onClick={(e) => toggle(e, 4)}></div>
-          <div className="boxes" onClick={(e) => toggle(e, 5)}></div>
-        </div>
-        <div className="row3">
-          <div className="boxes" onClick={(e) => toggle(e, 6)}></div>
-          <div className="boxes" onClick={(e) => toggle(e, 7)}></div>
-          <div className="boxes" onClick={(e) => toggle(e, 8)}></div>
-        </div>
+        {[0, 1, 2].map((row) => (
+          <div key={row} className={`row${row + 1}`}>
+            {[0, 1, 2].map((col) => {
+              const index = row * 3 + col;
+              return (
+                <div
+                  key={index}
+                  className="boxes"
+                  onClick={() => toggle(index)}
+                >
+                  {renderIcon(data[index])}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
       <button className="reset" onClick={resetBoard}>
         Reset
